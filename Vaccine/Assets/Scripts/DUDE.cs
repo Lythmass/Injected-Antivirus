@@ -7,13 +7,14 @@ public class DUDE : MonoBehaviour
     public LayerMask whatIsGround;
     public Transform detector;
     private float movement;
-    public GameObject xray;
+    public GameObject xray, baxray;
     public float publicJumpCount, maxHealth;
     private float jumpCount, health;
-    private bool isKilling = false;
+    private bool isKilling = false, isBaxray = false;
     public static bool isRaging;
     void Start()
     {
+        baxray.SetActive(false);
         rb = GetComponent<Rigidbody2D>();
         jumpCount = publicJumpCount;
         health = maxHealth;
@@ -25,8 +26,13 @@ public class DUDE : MonoBehaviour
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
             xray.SetActive(true);
+            if(isBaxray)
+            {
+                baxray.SetActive(true);
+            }
             float angle = Mathf.Atan2(mousePos.y, mousePos.x) * Mathf.Rad2Deg;
             xray.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            baxray.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
         if (Input.GetMouseButton(1) && Time.timeScale >= 0.05f)
         {
@@ -38,6 +44,7 @@ public class DUDE : MonoBehaviour
         if(!Input.GetMouseButton(1))
         {
             xray.SetActive(false);
+            baxray.SetActive(false);
         }
         
         if (Corona.isOver && Input.GetMouseButtonDown(0) && Vector2.Distance(Camera.main.ScreenToWorldPoint(Input.mousePosition), transform.position) <= 10f && xray.activeInHierarchy)
@@ -104,6 +111,7 @@ public class DUDE : MonoBehaviour
     {
         if(other.gameObject.CompareTag("Rage Zone"))
         {
+            isBaxray = true;
             speed *= 2;
             jumpForce *= 1.5f;
             isRaging = true;
@@ -113,6 +121,7 @@ public class DUDE : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Rage Zone"))
         {
+            isBaxray = false;
             speed /= 2;
             jumpForce /= 1.5f;
             isRaging = false;
