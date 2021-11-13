@@ -5,11 +5,12 @@ public class DUDE : MonoBehaviour
     private Rigidbody2D rb;
     public float speed, jumpForce, radius;
     public LayerMask whatIsGround;
+    private Collider2D ground;
     public Transform detector;
     private float movement;
     public GameObject xray, baxray;
     public float publicJumpCount, maxHealth;
-    private float jumpCount, health;
+    private float jumpCount, health, time;
     private bool isKilling = false, isBaxray = false;
     public static bool isRaging;
     void Start()
@@ -26,7 +27,7 @@ public class DUDE : MonoBehaviour
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
             xray.SetActive(true);
-            if(isBaxray)
+            if (isBaxray)
             {
                 baxray.SetActive(true);
             }
@@ -41,12 +42,12 @@ public class DUDE : MonoBehaviour
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
         Time.timeScale += Time.unscaledDeltaTime;
         Time.timeScale = Mathf.Clamp(Time.timeScale, 0.05f, 1f);
-        if(!Input.GetMouseButton(1))
+        if (!Input.GetMouseButton(1))
         {
             xray.SetActive(false);
             baxray.SetActive(false);
         }
-        
+
         if (Corona.isOver && Input.GetMouseButtonDown(0) && Vector2.Distance(Camera.main.ScreenToWorldPoint(Input.mousePosition), transform.position) <= 10f && xray.activeInHierarchy)
         {
             isKilling = true;
@@ -57,21 +58,22 @@ public class DUDE : MonoBehaviour
             isKilling = false;
         }
         movement = Input.GetAxisRaw("Horizontal");
-        Collider2D ground = Physics2D.OverlapCircle(detector.position, radius, whatIsGround);
-        if((Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W))&& jumpCount > 0)
+        if (ground && Time.time - time >= 0.125f)
+        {
+            jumpCount = publicJumpCount;
+
+        }
+        if (jumpCount > 0 && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)))
         {
             rb.velocity = Vector2.up * jumpForce * 0.02f;
             jumpCount--;
+            time = Time.time;
         }
-        if(ground)
-        {
-            jumpCount = publicJumpCount;
-        }
-        if(health <= 0)
+        if (health <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-        Debug.Log(health);
+        Debug.Log(jumpCount);
         if(BloodWater.isUnderBlood)
         {
             health -= Time.deltaTime * 0.5f;
@@ -79,6 +81,7 @@ public class DUDE : MonoBehaviour
     }
     void FixedUpdate()
     {
+        ground = Physics2D.OverlapCircle(detector.position, radius, whatIsGround);
         if (BloodWater.isUnderBlood)
         {
             if(Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W))
