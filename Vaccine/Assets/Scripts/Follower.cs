@@ -19,9 +19,10 @@ public class Follower : MonoBehaviour
         {
             Camera.main.orthographicSize = Mathf.Lerp(Camera.main.orthographicSize, 5, 2.5f * Time.deltaTime);
         }
+
     }
     // Update is called once per frame
-    void FixedUpdate()
+    void LateUpdate()
     {
         transform.position = Vector3.Lerp(transform.position, player.position + offset, 5f * Time.unscaledDeltaTime);
     }

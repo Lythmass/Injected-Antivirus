@@ -11,8 +11,8 @@ public class DUDE : MonoBehaviour
     public GameObject xray, baxray;
     public float publicJumpCount, maxHealth;
     private float jumpCount, health, time;
-    private bool isKilling = false, isBaxray = false;
-    public static bool isRaging;
+    private bool isBaxray = false;
+    public static bool isRaging, isKilling = false;
     void Start()
     {
         baxray.SetActive(false);
@@ -35,27 +35,31 @@ public class DUDE : MonoBehaviour
             xray.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
             baxray.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         }
-        if (Input.GetMouseButton(1) && Time.timeScale >= 0.05f)
+        //Time.fixedDeltaTime = 0.02f * Time.timeScale;
+        Time.timeScale = Mathf.Clamp(Time.timeScale, 0.05f, 1f);
+        if (Input.GetMouseButton(1))
         {
             Time.timeScale -= Time.unscaledDeltaTime * 7f;
         }
-        Time.fixedDeltaTime = 0.02f * Time.timeScale;
-        Time.timeScale += Time.unscaledDeltaTime;
-        Time.timeScale = Mathf.Clamp(Time.timeScale, 0.05f, 1f);
+        if (!Input.GetMouseButton(1))
+        {
+            Time.timeScale += Time.unscaledDeltaTime;
+        }
         if (!Input.GetMouseButton(1))
         {
             xray.SetActive(false);
             baxray.SetActive(false);
         }
-
         if (Corona.isOver && Input.GetMouseButtonDown(0) && Vector2.Distance(Camera.main.ScreenToWorldPoint(Input.mousePosition), transform.position) <= 10f && xray.activeInHierarchy)
         {
             isKilling = true;
+            Time.fixedDeltaTime = 0.02f * 0.05f;
             transform.position = new Vector3(Camera.main.ScreenToWorldPoint(Input.mousePosition).x, Camera.main.ScreenToWorldPoint(Input.mousePosition).y, 0);
         }
         if (Input.GetMouseButtonUp(0) && isKilling)
         {
             isKilling = false;
+            Time.fixedDeltaTime = 0.02f;
         }
         movement = Input.GetAxisRaw("Horizontal");
         if (ground && Time.time - time >= 0.125f)
@@ -73,7 +77,7 @@ public class DUDE : MonoBehaviour
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-        Debug.Log(jumpCount);
+        Debug.Log(health);
         if(BloodWater.isUnderBlood)
         {
             health -= Time.deltaTime * 0.5f;
@@ -104,7 +108,7 @@ public class DUDE : MonoBehaviour
         {
             health--;
         }
-        if(other.gameObject.CompareTag("Instant Death"))
+        if (other.gameObject.CompareTag("Instant Death"))
         {
             health = -1;
         }

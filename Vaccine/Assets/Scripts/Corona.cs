@@ -20,10 +20,6 @@ public class Corona : MonoBehaviour
     }
     void Update()
     {
-        /*if(Vector2.Distance(transform.position, player.transform.position) <= dist)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, player.transform.position, speed * Time.deltaTime);
-        }*/
         transform.position = Vector3.Lerp(transform.position, new Vector3(z, w), speed * Time.deltaTime);
         if (Vector3.Distance(transform.position, new Vector3(z, w)) <= 0.025f)
         {
