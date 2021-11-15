@@ -8,6 +8,8 @@ TagManager:
   - Blood
   - Instant Death
   - Rage Zone
+  - Exploding Corona
+  - Ceiling
   layers:
   - Default
   - TransparentFX

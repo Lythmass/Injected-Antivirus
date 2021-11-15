@@ -1,14 +1,13 @@
 using UnityEngine;
 
-public class Corona : MonoBehaviour
+public class ExplodingCorona : MonoBehaviour
 {
-    public static bool isOver;
+    public static bool isOver, isDead;
     private DUDE player;
     public float speed, dist;
     private Vector2 box1, box2;
     private Vector3 startPos;
     private float x, y, z, w;
-    private bool isOut;
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<DUDE>();
@@ -29,10 +28,6 @@ public class Corona : MonoBehaviour
             z = Mathf.Clamp(startPos.x + x, box2.x, box1.x);
             w = Mathf.Clamp(startPos.y + y, box2.y, box1.y);
         }
-        if(ExplodingCorona.isDead && Vector2.Distance(transform.position, player.transform.position) <= 5f)
-        {
-            Destroy(gameObject);
-        }
     }
     void OnMouseOver()
     {
@@ -45,8 +40,9 @@ public class Corona : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D other)
     {
-        if(other.gameObject.CompareTag("Player"))
+        if (other.gameObject.CompareTag("Player"))
         {
+            isDead = true;
             Destroy(gameObject);
             isOver = false;
         }

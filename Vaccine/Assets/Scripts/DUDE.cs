@@ -3,27 +3,31 @@ using UnityEngine.SceneManagement;
 public class DUDE : MonoBehaviour
 {
     private Rigidbody2D rb;
-    public float speed, jumpForce, radius;
+    public float speed, jumpForce, radius, publicExplosionForce, publicTimer, publicDelayTimer;
     public LayerMask whatIsGround;
     private Collider2D ground;
     public Transform detector;
     private float movement;
     public GameObject xray, baxray;
     public float publicJumpCount, maxHealth;
-    private float jumpCount, health, time;
+    private float jumpCount, health, time, explosionForce, timer, delayTimer;
     private bool isBaxray = false;
     public static bool isRaging, isKilling = false;
+    private Vector3 pos;
     void Start()
     {
         baxray.SetActive(false);
         rb = GetComponent<Rigidbody2D>();
         jumpCount = publicJumpCount;
         health = maxHealth;
+        explosionForce = publicExplosionForce;
+        timer = publicTimer;
+        delayTimer = publicDelayTimer;
     }
 
     void Update()
     {
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1) && timer >= 0)
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition) - transform.position;
             xray.SetActive(true);
@@ -34,14 +38,25 @@ public class DUDE : MonoBehaviour
             float angle = Mathf.Atan2(mousePos.y, mousePos.x) * Mathf.Rad2Deg;
             xray.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
             baxray.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+            timer -= Time.unscaledDeltaTime;
+            delayTimer = publicDelayTimer;
+        }
+        if(timer <= 0)
+        {
+            xray.SetActive(false); baxray.SetActive(false);
+            delayTimer -= Time.unscaledDeltaTime;
+            if( delayTimer <= 0)
+            {
+                timer = publicTimer;
+            }
         }
         //Time.fixedDeltaTime = 0.02f * Time.timeScale;
         Time.timeScale = Mathf.Clamp(Time.timeScale, 0.05f, 1f);
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(1) && timer >= 0)
         {
             Time.timeScale -= Time.unscaledDeltaTime * 7f;
         }
-        if (!Input.GetMouseButton(1))
+        if (!Input.GetMouseButton(1) || timer <= 0)
         {
             Time.timeScale += Time.unscaledDeltaTime;
         }
@@ -50,7 +65,7 @@ public class DUDE : MonoBehaviour
             xray.SetActive(false);
             baxray.SetActive(false);
         }
-        if (Corona.isOver && Input.GetMouseButtonDown(0) && Vector2.Distance(Camera.main.ScreenToWorldPoint(Input.mousePosition), transform.position) <= 10f && xray.activeInHierarchy)
+        if ((ExplodingCorona.isOver || Corona.isOver) && Input.GetMouseButtonDown(0) && Vector2.Distance(Camera.main.ScreenToWorldPoint(Input.mousePosition), transform.position) <= 20f && xray.activeInHierarchy)
         {
             isKilling = true;
             Time.fixedDeltaTime = 0.02f * 0.05f;
@@ -65,23 +80,28 @@ public class DUDE : MonoBehaviour
         if (ground && Time.time - time >= 0.125f)
         {
             jumpCount = publicJumpCount;
-
         }
         if (jumpCount > 0 && (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W)))
         {
-            rb.velocity = Vector2.up * jumpForce * 0.02f;
+            rb.velocity = Vector2.up * jumpForce;
             jumpCount--;
             time = Time.time;
+        }
+        if (ExplodingCorona.isDead)
+        {
+            //explosionForce = Mathf.Lerp(explosionForce, 0, Time.deltaTime * 5f);
+            rb.velocity = Vector2.up * explosionForce;
+            ExplodingCorona.isDead = false;
         }
         if (health <= 0)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
-        Debug.Log(health);
         if(BloodWater.isUnderBlood)
         {
             health -= Time.deltaTime * 0.5f;
         }
+        Debug.Log(health);
     }
     void FixedUpdate()
     {
@@ -108,7 +128,7 @@ public class DUDE : MonoBehaviour
         {
             health--;
         }
-        if (other.gameObject.CompareTag("Instant Death"))
+        if (other.gameObject.CompareTag("Exploding Corona") && !isKilling)
         {
             health = -1;
         }
