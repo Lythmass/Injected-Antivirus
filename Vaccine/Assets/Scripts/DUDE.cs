@@ -3,14 +3,13 @@ using UnityEngine.SceneManagement;
 public class DUDE : MonoBehaviour
 {
     private Rigidbody2D rb;
-    public float speed, jumpForce, radius, publicExplosionForce, publicTimer, publicDelayTimer;
+    public float speed, jumpForce, radius, publicExplosionForce, publicTimer, publicDelayTimer, publicSwimForce;
     public LayerMask whatIsGround;
     private Collider2D ground;
     public Transform detector;
-    private float movement;
-    public GameObject xray, baxray;
+    public GameObject xray, baxray, corona;
     public float publicJumpCount, maxHealth;
-    private float jumpCount, health, time, explosionForce, timer, delayTimer;
+    private float jumpCount, health, time, explosionForce, timer, delayTimer, movement, swimForce;
     private bool isBaxray = false;
     public static bool isRaging, isKilling = false;
     private Vector3 pos;
@@ -23,6 +22,7 @@ public class DUDE : MonoBehaviour
         explosionForce = publicExplosionForce;
         timer = publicTimer;
         delayTimer = publicDelayTimer;
+        swimForce = publicSwimForce;
     }
 
     void Update()
@@ -89,7 +89,6 @@ public class DUDE : MonoBehaviour
         }
         if (ExplodingCorona.isDead)
         {
-            //explosionForce = Mathf.Lerp(explosionForce, 0, Time.deltaTime * 5f);
             rb.velocity = Vector2.up * explosionForce;
             ExplodingCorona.isDead = false;
         }
@@ -110,7 +109,7 @@ public class DUDE : MonoBehaviour
         {
             if(Input.GetKey(KeyCode.Space) || Input.GetKey(KeyCode.W))
             {
-                rb.AddForce(Vector2.up * jumpForce * Time.deltaTime);
+                rb.AddForce(Vector2.up * swimForce * Time.deltaTime);
             }
         }
         rb.velocity = new Vector2(movement * speed, rb.velocity.y);

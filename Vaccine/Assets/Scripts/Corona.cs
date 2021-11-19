@@ -11,6 +11,7 @@ public class Corona : MonoBehaviour
     private bool isOut;
     void Start()
     {
+        //gameObject.SetActive(false);
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<DUDE>();
         box1 = new Vector2(transform.position.x + 0.5f, transform.position.y + 0.5f);
         box2 = new Vector2(transform.position.x - 0.5f, transform.position.y - 0.5f);
